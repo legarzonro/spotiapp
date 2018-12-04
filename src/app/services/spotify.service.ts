@@ -8,13 +8,24 @@ import { map } from 'rxjs/operators';
 })
 export class SpotifyService {
 
+  access_token: string;
+  clientID = 'f212d5b0aaad43ec9fb010ed4992ec4b';
+  clientSecret = '0aaf170e88af4870a20ffe761f200a1c';
+
   constructor(private http: HttpClient) {
     console.log('servicio listo!');
+    this.http.get('https://spotify-get-token.herokuapp.com/spotify/' + this.clientID + '/' + this.clientSecret).subscribe(
+      (resp: any) => {
+        this.access_token=resp.access_token;
+      },
+      err => {
+        console.log(err);
+      });
   }
 
-  getQuery(query: string){
+  getQuery(query: string) {
     const headers = new HttpHeaders({
-      'Authorization': 'Bearer QADcBH0QkPJkQjRm7hyL18wZAzJ8A7WwxoSpuCb05WPK6xvUCzgmZCly5uggEM4tdSLL5zeRYLIsU13m0I'
+      'Authorization': `Bearer ${this.access_token}`
     });
     return this.http.get(`https://api.spotify.com/v1/${query}`, { headers })
   }
@@ -32,6 +43,6 @@ export class SpotifyService {
   }
 
   getTopTracks(id: string) {
-    return this.getQuery(`artists/${id}/top-tracks?country=ES`).pipe(map(res=>res['tracks']));
+    return this.getQuery(`artists/${id}/top-tracks?country=ES`).pipe(map(res => res['tracks']));
   }
 }
